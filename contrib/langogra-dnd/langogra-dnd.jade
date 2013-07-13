@@ -1,0 +1,84 @@
+doctype 5
+html
+  head
+    title langogra-dnd
+    meta(charset="utf-8")
+
+    link(rel="stylesheet", href="../_vendor/bootstrap-2.3.2/css/bootstrap.min.css")
+    link(rel="stylesheet", href="../_vendor/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.css")
+    script(type="text/javascript", src="../_vendor/lodash-1.3.1/lodash.underscore.min.js")
+    script(type="text/javascript", src="../_vendor/jquery-1.9.1/jquery-1.9.1.min.js")
+    script(type="text/javascript", src="../_vendor/jquery-ui-1.10.3/jquery-ui-1.10.3.custom.min.js")
+    script(type="text/javascript", src="../_vendor/angular-1.0.7/angular.min.js")
+    script(type="text/javascript", src="../_vendor/angular-1.0.7/angular-resource.min.js")
+
+    script(type="text/javascript", src="langogra-dnd.js")
+    style(type="text/css")
+      body {
+        margin-top: 64px;
+      }
+      .container-fluid {
+        max-width: 640px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #text-area {
+        background-color: #eeeef5;
+        font-size: 17px !important;
+        border-radius: 0;
+      }
+      #drag-area {
+        background-color: #fafad2;
+        border-radius: 8px;
+      }
+      #drop-area {
+        background-color: #efe5c9;
+        border-radius: 8px;
+      }
+      .btn {
+        font-size: 17px !important;
+        padding: 5px 8px !important;
+      }
+      .btn-group + .btn-group {
+        margin-left: 8px;
+      }
+      .btn-toolbar {
+        /* Fix .btn-toolbar margin. */
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+      .capitalize {
+        text-transform: capitalize;
+      }
+
+  body(ng-app="langogra", ng-controller="langograCtrl")
+    div#top-element.navbar.navbar-fixed-top
+      div.navbar-inner
+        div.container-fluid
+          a#brand.brand(href="#") Langogra
+
+    div#main-element.container-fluid
+      div.row-fluid
+        div#text-area.well.span12
+          | {{vm.text}}
+
+      div.row-fluid
+        div#drag-area.well.span12
+          div.btn-toolbar
+            div.btn-group(ng-repeat="token in vm.tokens")
+              a.btn.btn-large(ng-class="{'btn-primary': !token.ghost, 'disabled': token.ghost}", draggable)
+                | {{token.text}}
+
+      div.row-fluid
+        div#drop-area.well.span12
+          div.btn-toolbar
+            div.btn-group(ng-repeat="group in vm.groups")
+              button.btn.btn-large(ng-repeat="token in group",
+                ng-class="{'btn-primary': !token.ghost, 'disabled': token.ghost, 'capitalize': token.capital}")
+                | {{token.text}}
+
+      div.row-fluid
+        div.well.well-small.span6
+          pre {{vm.tokens | json}}
+        div.well.well-small.span6
+          pre {{vm.groups | json}}
