@@ -37,7 +37,8 @@ var langogra;
             }
             DraggableDirective.prototype.link = function (scope, element, attrs) {
                 var draggable = element;
-                ElementServiceRegistry.register(draggable, new ElementService());
+                var elementService = new ElementService();
+                ElementServiceRegistry.register(draggable, elementService);
                 draggable.draggable({
                     revert: true,
                     helper: "clone",
@@ -45,17 +46,14 @@ var langogra;
                     scroll: false,
                     zIndex: 100,
                     drag: function (event, ui) {
-                        var elementService = ElementServiceRegistry.retrieve(draggable);
                         var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDrag(args);
                     },
                     start: function (event, ui) {
-                        var elementService = ElementServiceRegistry.retrieve(draggable);
                         var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDragStart(args);
                     },
                     stop: function (event, ui) {
-                        var elementService = ElementServiceRegistry.retrieve(draggable);
                         var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDragStop(args);
                     }
