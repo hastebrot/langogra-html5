@@ -70,7 +70,7 @@ html
                 | {{token.text}}
 
       div.row-fluid
-        div#drop-area.well.span12
+        div#drop-area.well.span12(droppable)
           div.btn-toolbar
             div.btn-group(ng-repeat="group in vm.groups")
               button.btn.btn-large(ng-repeat="token in group",

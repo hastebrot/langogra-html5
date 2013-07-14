@@ -47,7 +47,7 @@ module langogra.dnd {
     restrict: string = "A";
 
     link(scope, element, attrs) {
-      var elementService = new ElementService()
+      var draggable = element
       element.draggable({
         revert: true,
         helper: "clone",
@@ -56,16 +56,50 @@ module langogra.dnd {
         zIndex: 100,
 
         drag: function(event, ui) {
-          var args = EventArgumentsFactory.build(element, event, ui)
+          var elementService = ElementServiceRegistry.retrieve(draggable)
+          var args = EventArgumentsFactory.build(draggable, event, ui)
           elementService.onDrag(args)
         },
         start: function(event, ui) {
-          var args = EventArgumentsFactory.build(element, event, ui)
+          var elementService = new ElementService()
+          ElementServiceRegistry.register(draggable, elementService)
+          var args = EventArgumentsFactory.build(draggable, event, ui)
           elementService.onDragStart(args)
         },
         stop: function(event, ui) {
-          var args = EventArgumentsFactory.build(element, event, ui)
+          var elementService = ElementServiceRegistry.retrieve(draggable)
+          var args = EventArgumentsFactory.build(draggable, event, ui)
           elementService.onDragStop(args)
+        }
+      })
+    }
+  }
+
+  export class DroppableDirective implements ng.IDirective {
+    restrict: string = "A";
+
+    link(scope, element, attrs) {
+      element.droppable({
+        tolerance: "intersect",
+        //tolerence: "touch",
+
+        drop: function(event, ui) {
+          var draggable = ui.draggable
+          var elementService = ElementServiceRegistry.retrieve(draggable)
+          var args = EventArgumentsFactory.build(draggable, event, ui)
+          elementService.onDrop(args)
+        },
+        over: function(event, ui) {
+          var draggable = ui.draggable
+          var elementService = ElementServiceRegistry.retrieve(draggable)
+          var args = EventArgumentsFactory.build(draggable, event, ui)
+          elementService.onOverTarget(args)
+        },
+        out: function(event, ui) {
+          var draggable = ui.draggable
+          var elementService = ElementServiceRegistry.retrieve(draggable)
+          var args = EventArgumentsFactory.build(draggable, event, ui)
+          elementService.onOutOfTarget(args)
         }
       })
     }
@@ -82,21 +116,42 @@ module langogra.dnd {
       this.dropState = DropState.inDragArea()
     }
 
-    onDrag(args: EventArguments) {
-      console.log(args.element.text())
+    onDrag(args: DragArguments) {
+      console.log("drag", args.draggableHelper.text())
     }
 
-    onDragStart(args: EventArguments) {
-      args.element.removeClass("btn-primary").addClass("disabled")
+    onDragStart(args: DragArguments) {
+      console.log("start", args.draggableHelper.text())
+      args.draggable.removeClass("btn-primary").addClass("disabled")
     }
 
-    onDragStop(args: EventArguments) {
-      args.element.addClass("btn-primary").removeClass("disabled")
+    onDragStop(args: DragArguments) {
+      console.log("stop", args.draggableHelper.text())
+      args.draggable.addClass("btn-primary").removeClass("disabled")
     }
 
-    onDrop(args: EventArguments) {}
-    onOverTarget(args: EventArguments) {}
-    onOutOfTarget(args: EventArguments) {}
+    onDrop(args: DragArguments) {
+      console.log("drop", args.draggableHelper.text())
+    }
+
+    onOverTarget(args: DragArguments) {
+      console.log("over", args.draggableHelper.text())
+    }
+
+    onOutOfTarget(args: DragArguments) {
+      console.log("out", args.draggableHelper.text())
+    }
+  }
+
+  export class ElementServiceRegistry {
+    private static elementServices = {};
+
+    static register(element: JQuery, elementService: ElementService) {
+      ElementServiceRegistry.elementServices[element.text()] = elementService
+    }
+    static retrieve(element: JQuery): ElementService {
+      return ElementServiceRegistry.elementServices[element.text()]
+    }
   }
 
   export class DropState {
@@ -113,18 +168,18 @@ module langogra.dnd {
     }
   }
 
-  export interface EventArguments {
-    element: JQuery;
-    helperElement?: JQuery;
+  export interface DragArguments {
+    draggable: JQuery;
+    draggableHelper?: JQuery;
     position: { top: number; left: number; };
     offset: { top: number; left: number; };
   }
 
   export class EventArgumentsFactory {
-    static build(element, event, ui): EventArguments {
+    static build(draggable, event, ui): DragArguments {
       return {
-        element: element,
-        helperElement: ui.helper,
+        draggable: draggable,
+        draggableHelper: ui.helper,
         position: ui.position,
         offset: ui.offset
       }
@@ -135,3 +190,4 @@ module langogra.dnd {
 var langograApp = angular.module("langogra", [])
 langograApp.controller("langograCtrl", <Function>langogra.view.LangograController)
 langograApp.directive("draggable", () => new langogra.dnd.DraggableDirective())
+langograApp.directive("droppable", () => new langogra.dnd.DroppableDirective())
