@@ -48,7 +48,8 @@ module langogra.dnd {
 
     link(scope, element, attrs) {
       var draggable = element
-      element.draggable({
+      ElementServiceRegistry.register(draggable, new ElementService())
+      draggable.draggable({
         revert: true,
         helper: "clone",
         appendTo: "body",
@@ -57,18 +58,17 @@ module langogra.dnd {
 
         drag: function(event, ui) {
           var elementService = ElementServiceRegistry.retrieve(draggable)
-          var args = EventArgumentsFactory.build(draggable, event, ui)
+          var args = DragArgumentsFactory.build(draggable, event, ui)
           elementService.onDrag(args)
         },
         start: function(event, ui) {
-          var elementService = new ElementService()
-          ElementServiceRegistry.register(draggable, elementService)
-          var args = EventArgumentsFactory.build(draggable, event, ui)
+          var elementService = ElementServiceRegistry.retrieve(draggable)
+          var args = DragArgumentsFactory.build(draggable, event, ui)
           elementService.onDragStart(args)
         },
         stop: function(event, ui) {
           var elementService = ElementServiceRegistry.retrieve(draggable)
-          var args = EventArgumentsFactory.build(draggable, event, ui)
+          var args = DragArgumentsFactory.build(draggable, event, ui)
           elementService.onDragStop(args)
         }
       })
@@ -79,26 +79,27 @@ module langogra.dnd {
     restrict: string = "A";
 
     link(scope, element, attrs) {
-      element.droppable({
+      var droppable = element
+      droppable.droppable({
         tolerance: "intersect",
         //tolerence: "touch",
 
         drop: function(event, ui) {
           var draggable = ui.draggable
           var elementService = ElementServiceRegistry.retrieve(draggable)
-          var args = EventArgumentsFactory.build(draggable, event, ui)
+          var args = DragArgumentsFactory.build(draggable, event, ui)
           elementService.onDrop(args)
         },
         over: function(event, ui) {
           var draggable = ui.draggable
           var elementService = ElementServiceRegistry.retrieve(draggable)
-          var args = EventArgumentsFactory.build(draggable, event, ui)
+          var args = DragArgumentsFactory.build(draggable, event, ui)
           elementService.onOverTarget(args)
         },
         out: function(event, ui) {
           var draggable = ui.draggable
           var elementService = ElementServiceRegistry.retrieve(draggable)
-          var args = EventArgumentsFactory.build(draggable, event, ui)
+          var args = DragArgumentsFactory.build(draggable, event, ui)
           elementService.onOutOfTarget(args)
         }
       })
@@ -144,13 +145,11 @@ module langogra.dnd {
   }
 
   export class ElementServiceRegistry {
-    private static elementServices = {};
-
     static register(element: JQuery, elementService: ElementService) {
-      ElementServiceRegistry.elementServices[element.text()] = elementService
+      element.data("langogra.dnd.ElementService", elementService)
     }
     static retrieve(element: JQuery): ElementService {
-      return ElementServiceRegistry.elementServices[element.text()]
+      return element.data("langogra.dnd.ElementService")
     }
   }
 
@@ -175,7 +174,7 @@ module langogra.dnd {
     offset: { top: number; left: number; };
   }
 
-  export class EventArgumentsFactory {
+  export class DragArgumentsFactory {
     static build(draggable, event, ui): DragArguments {
       return {
         draggable: draggable,

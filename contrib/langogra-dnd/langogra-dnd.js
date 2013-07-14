@@ -37,7 +37,8 @@ var langogra;
             }
             DraggableDirective.prototype.link = function (scope, element, attrs) {
                 var draggable = element;
-                element.draggable({
+                ElementServiceRegistry.register(draggable, new ElementService());
+                draggable.draggable({
                     revert: true,
                     helper: "clone",
                     appendTo: "body",
@@ -45,18 +46,17 @@ var langogra;
                     zIndex: 100,
                     drag: function (event, ui) {
                         var elementService = ElementServiceRegistry.retrieve(draggable);
-                        var args = EventArgumentsFactory.build(draggable, event, ui);
+                        var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDrag(args);
                     },
                     start: function (event, ui) {
-                        var elementService = new ElementService();
-                        ElementServiceRegistry.register(draggable, elementService);
-                        var args = EventArgumentsFactory.build(draggable, event, ui);
+                        var elementService = ElementServiceRegistry.retrieve(draggable);
+                        var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDragStart(args);
                     },
                     stop: function (event, ui) {
                         var elementService = ElementServiceRegistry.retrieve(draggable);
-                        var args = EventArgumentsFactory.build(draggable, event, ui);
+                        var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDragStop(args);
                     }
                 });
@@ -70,24 +70,25 @@ var langogra;
                 this.restrict = "A";
             }
             DroppableDirective.prototype.link = function (scope, element, attrs) {
-                element.droppable({
+                var droppable = element;
+                droppable.droppable({
                     tolerance: "intersect",
                     drop: function (event, ui) {
                         var draggable = ui.draggable;
                         var elementService = ElementServiceRegistry.retrieve(draggable);
-                        var args = EventArgumentsFactory.build(draggable, event, ui);
+                        var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onDrop(args);
                     },
                     over: function (event, ui) {
                         var draggable = ui.draggable;
                         var elementService = ElementServiceRegistry.retrieve(draggable);
-                        var args = EventArgumentsFactory.build(draggable, event, ui);
+                        var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onOverTarget(args);
                     },
                     out: function (event, ui) {
                         var draggable = ui.draggable;
                         var elementService = ElementServiceRegistry.retrieve(draggable);
-                        var args = EventArgumentsFactory.build(draggable, event, ui);
+                        var args = DragArgumentsFactory.build(draggable, event, ui);
                         elementService.onOutOfTarget(args);
                     }
                 });
@@ -135,12 +136,11 @@ var langogra;
             function ElementServiceRegistry() {
             }
             ElementServiceRegistry.register = function (element, elementService) {
-                ElementServiceRegistry.elementServices[element.text()] = elementService;
+                element.data("langogra.dnd.ElementService", elementService);
             };
             ElementServiceRegistry.retrieve = function (element) {
-                return ElementServiceRegistry.elementServices[element.text()];
+                return element.data("langogra.dnd.ElementService");
             };
-            ElementServiceRegistry.elementServices = {};
             return ElementServiceRegistry;
         })();
         dnd.ElementServiceRegistry = ElementServiceRegistry;
@@ -162,10 +162,10 @@ var langogra;
         })();
         dnd.DropState = DropState;
 
-        var EventArgumentsFactory = (function () {
-            function EventArgumentsFactory() {
+        var DragArgumentsFactory = (function () {
+            function DragArgumentsFactory() {
             }
-            EventArgumentsFactory.build = function (draggable, event, ui) {
+            DragArgumentsFactory.build = function (draggable, event, ui) {
                 return {
                     draggable: draggable,
                     draggableHelper: ui.helper,
@@ -173,9 +173,9 @@ var langogra;
                     offset: ui.offset
                 };
             };
-            return EventArgumentsFactory;
+            return DragArgumentsFactory;
         })();
-        dnd.EventArgumentsFactory = EventArgumentsFactory;
+        dnd.DragArgumentsFactory = DragArgumentsFactory;
     })(langogra.dnd || (langogra.dnd = {}));
     var dnd = langogra.dnd;
 })(langogra || (langogra = {}));
