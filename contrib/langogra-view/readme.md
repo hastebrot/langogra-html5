@@ -30,19 +30,19 @@
  - authors: anders hejlsberg, microsoft
  - homepage: http://www.typescriptlang.org/
 
+- `jade` html template engine
+ - authors: tj holowaychuk
+ - homepage: http://jade-lang.com/
+
 ### utils
 
 - `jquery` javascript dom library
  - authors: john resig
  - homepage: http://jquery.com/
 
-- `underscorejs` javascript utility library
+- `underscore` javascript utility library
  - authors: jeremy ashkenas
  - homepage: http://underscorejs.org/
-
-- `jade` html template engine
- - authors: tj holowaychuk
- - homepage: http://jade-lang.com/
 
 - `requirejs` file and module loader
  - authors: james burke
@@ -66,11 +66,15 @@
  - authors: jake luer
  - homepage: http://chaijs.com/
 
+- `sinon` standalone test spies, stubs and mocks
+ - authors: christian johansen
+ - homepage: http://sinonjs.org/
+
 ## server side
 
 ### core
 
-- `nodejs` event-driven, non-blocking i/o
+- `node` event-driven, non-blocking i/o
  - authors: ryan dahl, joyent
  - homepage: http://nodejs.org/
 
@@ -95,6 +99,10 @@
 - `bower` web package manager
  - authors: jacob thornton, alex maccaw, andré cruz, twitter
  - homepage: http://bower.io/
+
+- `tsd` (typescript definition package manager)
+ - authors: diullei gomes
+ - homepage: http://www.tsdpm.com/
 
 ### test
 
